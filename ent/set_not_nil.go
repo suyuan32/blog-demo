@@ -123,3 +123,75 @@ func (a *ArticleCreate) SetNotNilVisit(value *int) *ArticleCreate {
 	}
 	return a
 }
+
+// set field if value's pointer is not nil.
+func (c *CategoryUpdate) SetNotNilUpdatedAt(value *time.Time) *CategoryUpdate {
+	if value != nil {
+		return c.SetUpdatedAt(*value)
+	}
+	return c
+}
+
+// set field if value's pointer is not nil.
+func (c *CategoryUpdateOne) SetNotNilUpdatedAt(value *time.Time) *CategoryUpdateOne {
+	if value != nil {
+		return c.SetUpdatedAt(*value)
+	}
+	return c
+}
+
+// set field if value's pointer is not nil.
+func (c *CategoryCreate) SetNotNilUpdatedAt(value *time.Time) *CategoryCreate {
+	if value != nil {
+		return c.SetUpdatedAt(*value)
+	}
+	return c
+}
+
+// set field if value's pointer is not nil.
+func (c *CategoryUpdate) SetNotNilTitle(value *string) *CategoryUpdate {
+	if value != nil {
+		return c.SetTitle(*value)
+	}
+	return c
+}
+
+// set field if value's pointer is not nil.
+func (c *CategoryUpdateOne) SetNotNilTitle(value *string) *CategoryUpdateOne {
+	if value != nil {
+		return c.SetTitle(*value)
+	}
+	return c
+}
+
+// set field if value's pointer is not nil.
+func (c *CategoryCreate) SetNotNilTitle(value *string) *CategoryCreate {
+	if value != nil {
+		return c.SetTitle(*value)
+	}
+	return c
+}
+
+// set field if value's pointer is not nil.
+func (c *CategoryUpdate) SetNotNilRemark(value *string) *CategoryUpdate {
+	if value != nil {
+		return c.SetRemark(*value)
+	}
+	return c
+}
+
+// set field if value's pointer is not nil.
+func (c *CategoryUpdateOne) SetNotNilRemark(value *string) *CategoryUpdateOne {
+	if value != nil {
+		return c.SetRemark(*value)
+	}
+	return c
+}
+
+// set field if value's pointer is not nil.
+func (c *CategoryCreate) SetNotNilRemark(value *string) *CategoryCreate {
+	if value != nil {
+		return c.SetRemark(*value)
+	}
+	return c
+}

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	uuid "github.com/gofrs/uuid/v5"
 )
 
@@ -26,8 +27,17 @@ const (
 	FieldKeyword = "keyword"
 	// FieldVisit holds the string denoting the visit field in the database.
 	FieldVisit = "visit"
+	// EdgeCategory holds the string denoting the category edge name in mutations.
+	EdgeCategory = "category"
 	// Table holds the table name of the article in the database.
 	Table = "blog_article"
+	// CategoryTable is the table that holds the category relation/edge.
+	CategoryTable = "blog_article"
+	// CategoryInverseTable is the table name for the Category entity.
+	// It exists in this package in order to avoid circular dependency with the "category" package.
+	CategoryInverseTable = "blog_category"
+	// CategoryColumn is the table column denoting the category relation/edge.
+	CategoryColumn = "article_category"
 )
 
 // Columns holds all SQL columns for article fields.
@@ -41,10 +51,21 @@ var Columns = []string{
 	FieldVisit,
 }
 
+// ForeignKeys holds the SQL foreign-keys that are owned by the "blog_article"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"article_category",
+}
+
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -100,4 +121,18 @@ func ByKeyword(opts ...sql.OrderTermOption) OrderOption {
 // ByVisit orders the results by the visit field.
 func ByVisit(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldVisit, opts...).ToFunc()
+}
+
+// ByCategoryField orders the results by category field.
+func ByCategoryField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCategoryStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newCategoryStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CategoryInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, false, CategoryTable, CategoryColumn),
+	)
 }

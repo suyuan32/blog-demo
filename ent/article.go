@@ -4,6 +4,7 @@ package ent
 
 import (
 	"blog/ent/article"
+	"blog/ent/category"
 	"fmt"
 	"strings"
 	"time"
@@ -30,8 +31,34 @@ type Article struct {
 	// 关键字
 	Keyword string `json:"keyword,omitempty"`
 	// 浏览量
-	Visit        int `json:"visit,omitempty"`
-	selectValues sql.SelectValues
+	Visit int `json:"visit,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the ArticleQuery when eager-loading is set.
+	Edges            ArticleEdges `json:"edges"`
+	article_category *uint64
+	selectValues     sql.SelectValues
+}
+
+// ArticleEdges holds the relations/edges for other nodes in the graph.
+type ArticleEdges struct {
+	// Category holds the value of the category edge.
+	Category *Category `json:"category,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// CategoryOrErr returns the Category value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ArticleEdges) CategoryOrErr() (*Category, error) {
+	if e.loadedTypes[0] {
+		if e.Category == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: category.Label}
+		}
+		return e.Category, nil
+	}
+	return nil, &NotLoadedError{edge: "category"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -47,6 +74,8 @@ func (*Article) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullTime)
 		case article.FieldID:
 			values[i] = new(uuid.UUID)
+		case article.ForeignKeys[0]: // article_category
+			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -104,6 +133,13 @@ func (a *Article) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				a.Visit = int(value.Int64)
 			}
+		case article.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field article_category", value)
+			} else if value.Valid {
+				a.article_category = new(uint64)
+				*a.article_category = uint64(value.Int64)
+			}
 		default:
 			a.selectValues.Set(columns[i], values[i])
 		}
@@ -115,6 +151,11 @@ func (a *Article) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (a *Article) Value(name string) (ent.Value, error) {
 	return a.selectValues.Get(name)
+}
+
+// QueryCategory queries the "category" edge of the Article entity.
+func (a *Article) QueryCategory() *CategoryQuery {
+	return NewArticleClient(a.config).QueryCategory(a)
 }
 
 // Update returns a builder for updating this Article.

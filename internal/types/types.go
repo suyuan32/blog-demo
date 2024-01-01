@@ -164,3 +164,47 @@ type ArticleInfoResp struct {
 	// Article information | Article数据
 	Data ArticleInfo `json:"data"`
 }
+
+// The response data of category information | Category信息
+// swagger:model CategoryInfo
+type CategoryInfo struct {
+	BaseIDInfo
+	// 栏目标题
+	Title *string `json:"title,optional"`
+	// 备注
+	Remark *string `json:"remark,optional"`
+}
+
+// The response data of category list | Category列表数据
+// swagger:model CategoryListResp
+type CategoryListResp struct {
+	BaseDataInfo
+	// Category list data | Category列表数据
+	Data CategoryListInfo `json:"data"`
+}
+
+// Category list data | Category列表数据
+// swagger:model CategoryListInfo
+type CategoryListInfo struct {
+	BaseListInfo
+	// The API list data | Category列表数据
+	Data []CategoryInfo `json:"data"`
+}
+
+// Get category list request params | Category列表请求参数
+// swagger:model CategoryListReq
+type CategoryListReq struct {
+	PageInfo
+	// 栏目标题
+	Title *string `json:"title,optional"`
+	// 备注
+	Remark *string `json:"remark,optional"`
+}
+
+// Category information response | Category信息返回体
+// swagger:model CategoryInfoResp
+type CategoryInfoResp struct {
+	BaseDataInfo
+	// Category information | Category数据
+	Data CategoryInfo `json:"data"`
+}

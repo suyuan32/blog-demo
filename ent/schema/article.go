@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"github.com/suyuan32/simple-admin-common/orm/ent/mixins"
 )
@@ -25,7 +26,9 @@ func (Article) Fields() []ent.Field {
 
 // Edges of the Article.
 func (Article) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.To("category", Category.Type).Unique(),
+	}
 }
 
 // Mixin of the Article.

@@ -16,6 +16,8 @@ type Tx struct {
 	config
 	// Article is the client for interacting with the Article builders.
 	Article *ArticleClient
+	// Category is the client for interacting with the Category builders.
+	Category *CategoryClient
 
 	// lazily loaded.
 	client     *Client
@@ -148,6 +150,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Article = NewArticleClient(tx.config)
+	tx.Category = NewCategoryClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

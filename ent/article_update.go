@@ -4,6 +4,7 @@ package ent
 
 import (
 	"blog/ent/article"
+	"blog/ent/category"
 	"blog/ent/predicate"
 	"context"
 	"errors"
@@ -103,9 +104,34 @@ func (au *ArticleUpdate) AddVisit(i int) *ArticleUpdate {
 	return au
 }
 
+// SetCategoryID sets the "category" edge to the Category entity by ID.
+func (au *ArticleUpdate) SetCategoryID(id uint64) *ArticleUpdate {
+	au.mutation.SetCategoryID(id)
+	return au
+}
+
+// SetNillableCategoryID sets the "category" edge to the Category entity by ID if the given value is not nil.
+func (au *ArticleUpdate) SetNillableCategoryID(id *uint64) *ArticleUpdate {
+	if id != nil {
+		au = au.SetCategoryID(*id)
+	}
+	return au
+}
+
+// SetCategory sets the "category" edge to the Category entity.
+func (au *ArticleUpdate) SetCategory(c *Category) *ArticleUpdate {
+	return au.SetCategoryID(c.ID)
+}
+
 // Mutation returns the ArticleMutation object of the builder.
 func (au *ArticleUpdate) Mutation() *ArticleMutation {
 	return au.mutation
+}
+
+// ClearCategory clears the "category" edge to the Category entity.
+func (au *ArticleUpdate) ClearCategory() *ArticleUpdate {
+	au.mutation.ClearCategory()
+	return au
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -173,6 +199,35 @@ func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := au.mutation.AddedVisit(); ok {
 		_spec.AddField(article.FieldVisit, field.TypeInt, value)
+	}
+	if au.mutation.CategoryCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   article.CategoryTable,
+			Columns: []string{article.CategoryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUint64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.CategoryIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   article.CategoryTable,
+			Columns: []string{article.CategoryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUint64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, au.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -269,9 +324,34 @@ func (auo *ArticleUpdateOne) AddVisit(i int) *ArticleUpdateOne {
 	return auo
 }
 
+// SetCategoryID sets the "category" edge to the Category entity by ID.
+func (auo *ArticleUpdateOne) SetCategoryID(id uint64) *ArticleUpdateOne {
+	auo.mutation.SetCategoryID(id)
+	return auo
+}
+
+// SetNillableCategoryID sets the "category" edge to the Category entity by ID if the given value is not nil.
+func (auo *ArticleUpdateOne) SetNillableCategoryID(id *uint64) *ArticleUpdateOne {
+	if id != nil {
+		auo = auo.SetCategoryID(*id)
+	}
+	return auo
+}
+
+// SetCategory sets the "category" edge to the Category entity.
+func (auo *ArticleUpdateOne) SetCategory(c *Category) *ArticleUpdateOne {
+	return auo.SetCategoryID(c.ID)
+}
+
 // Mutation returns the ArticleMutation object of the builder.
 func (auo *ArticleUpdateOne) Mutation() *ArticleMutation {
 	return auo.mutation
+}
+
+// ClearCategory clears the "category" edge to the Category entity.
+func (auo *ArticleUpdateOne) ClearCategory() *ArticleUpdateOne {
+	auo.mutation.ClearCategory()
+	return auo
 }
 
 // Where appends a list predicates to the ArticleUpdate builder.
@@ -369,6 +449,35 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 	}
 	if value, ok := auo.mutation.AddedVisit(); ok {
 		_spec.AddField(article.FieldVisit, field.TypeInt, value)
+	}
+	if auo.mutation.CategoryCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   article.CategoryTable,
+			Columns: []string{article.CategoryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUint64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.CategoryIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   article.CategoryTable,
+			Columns: []string{article.CategoryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUint64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Article{config: auo.config}
 	_spec.Assign = _node.assignValues

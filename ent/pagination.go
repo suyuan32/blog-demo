@@ -4,6 +4,7 @@ package ent
 
 import (
 	"blog/ent/article"
+	"blog/ent/category"
 	"context"
 	"fmt"
 )
@@ -125,6 +126,85 @@ func (a *ArticleQuery) Page(
 
 	a = a.Offset(int((pageNum - 1) * pageSize)).Limit(int(pageSize))
 	list, err := a.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	ret.List = list
+
+	return ret, nil
+}
+
+type CategoryPager struct {
+	Order  category.OrderOption
+	Filter func(*CategoryQuery) (*CategoryQuery, error)
+}
+
+// CategoryPaginateOption enables pagination customization.
+type CategoryPaginateOption func(*CategoryPager)
+
+// DefaultCategoryOrder is the default ordering of Category.
+var DefaultCategoryOrder = Desc(category.FieldID)
+
+func newCategoryPager(opts []CategoryPaginateOption) (*CategoryPager, error) {
+	pager := &CategoryPager{}
+	for _, opt := range opts {
+		opt(pager)
+	}
+	if pager.Order == nil {
+		pager.Order = DefaultCategoryOrder
+	}
+	return pager, nil
+}
+
+func (p *CategoryPager) ApplyFilter(query *CategoryQuery) (*CategoryQuery, error) {
+	if p.Filter != nil {
+		return p.Filter(query)
+	}
+	return query, nil
+}
+
+// CategoryPageList is Category PageList result.
+type CategoryPageList struct {
+	List        []*Category  `json:"list"`
+	PageDetails *PageDetails `json:"pageDetails"`
+}
+
+func (c *CategoryQuery) Page(
+	ctx context.Context, pageNum uint64, pageSize uint64, opts ...CategoryPaginateOption,
+) (*CategoryPageList, error) {
+
+	pager, err := newCategoryPager(opts)
+	if err != nil {
+		return nil, err
+	}
+
+	if c, err = pager.ApplyFilter(c); err != nil {
+		return nil, err
+	}
+
+	ret := &CategoryPageList{}
+
+	ret.PageDetails = &PageDetails{
+		Page: pageNum,
+		Size: pageSize,
+	}
+
+	count, err := c.Clone().Count(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	ret.PageDetails.Total = uint64(count)
+
+	if pager.Order != nil {
+		c = c.Order(pager.Order)
+	} else {
+		c = c.Order(DefaultCategoryOrder)
+	}
+
+	c = c.Offset(int((pageNum - 1) * pageSize)).Limit(int(pageSize))
+	list, err := c.All(ctx)
 	if err != nil {
 		return nil, err
 	}

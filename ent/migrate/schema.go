@@ -18,21 +18,49 @@ var (
 		{Name: "content", Type: field.TypeString, Comment: "文章内容"},
 		{Name: "keyword", Type: field.TypeString, Nullable: true, Comment: "关键字"},
 		{Name: "visit", Type: field.TypeInt, Comment: "浏览量", Default: 0},
+		{Name: "article_category", Type: field.TypeUint64, Nullable: true},
 	}
 	// BlogArticleTable holds the schema information for the "blog_article" table.
 	BlogArticleTable = &schema.Table{
 		Name:       "blog_article",
 		Columns:    BlogArticleColumns,
 		PrimaryKey: []*schema.Column{BlogArticleColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "blog_article_blog_category_category",
+				Columns:    []*schema.Column{BlogArticleColumns[7]},
+				RefColumns: []*schema.Column{BlogCategoryColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// BlogCategoryColumns holds the columns for the "blog_category" table.
+	BlogCategoryColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint64, Increment: true},
+		{Name: "created_at", Type: field.TypeTime, Comment: "Create Time | 创建日期"},
+		{Name: "updated_at", Type: field.TypeTime, Comment: "Update Time | 修改日期"},
+		{Name: "title", Type: field.TypeString, Comment: "栏目标题"},
+		{Name: "remark", Type: field.TypeString, Comment: "备注"},
+	}
+	// BlogCategoryTable holds the schema information for the "blog_category" table.
+	BlogCategoryTable = &schema.Table{
+		Name:       "blog_category",
+		Columns:    BlogCategoryColumns,
+		PrimaryKey: []*schema.Column{BlogCategoryColumns[0]},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		BlogArticleTable,
+		BlogCategoryTable,
 	}
 )
 
 func init() {
+	BlogArticleTable.ForeignKeys[0].RefTable = BlogCategoryTable
 	BlogArticleTable.Annotation = &entsql.Annotation{
 		Table: "blog_article",
+	}
+	BlogCategoryTable.Annotation = &entsql.Annotation{
+		Table: "blog_category",
 	}
 }

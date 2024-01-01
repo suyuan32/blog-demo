@@ -158,6 +158,146 @@
         }
       }
     },
+    "/category": {
+      "post": {
+        "description": "Get category by ID | 通过ID获取Category",
+        "tags": [
+          "category"
+        ],
+        "summary": "Get category by ID | 通过ID获取Category",
+        "operationId": "GetCategoryById",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/IDReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CategoryInfoResp",
+            "schema": {
+              "$ref": "#/definitions/CategoryInfoResp"
+            }
+          }
+        }
+      }
+    },
+    "/category/create": {
+      "post": {
+        "description": "Create category information | 创建Category",
+        "tags": [
+          "category"
+        ],
+        "summary": "Create category information | 创建Category",
+        "operationId": "CreateCategory",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CategoryInfo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "BaseMsgResp",
+            "schema": {
+              "$ref": "#/definitions/BaseMsgResp"
+            }
+          }
+        }
+      }
+    },
+    "/category/delete": {
+      "post": {
+        "description": "Delete category information | 删除Category信息",
+        "tags": [
+          "category"
+        ],
+        "summary": "Delete category information | 删除Category信息",
+        "operationId": "DeleteCategory",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/IDsReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "BaseMsgResp",
+            "schema": {
+              "$ref": "#/definitions/BaseMsgResp"
+            }
+          }
+        }
+      }
+    },
+    "/category/list": {
+      "post": {
+        "description": "Get category list | 获取Category列表",
+        "tags": [
+          "category"
+        ],
+        "summary": "Get category list | 获取Category列表",
+        "operationId": "GetCategoryList",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CategoryListReq"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CategoryListResp",
+            "schema": {
+              "$ref": "#/definitions/CategoryListResp"
+            }
+          }
+        }
+      }
+    },
+    "/category/update": {
+      "post": {
+        "description": "Update category information | 更新Category",
+        "tags": [
+          "category"
+        ],
+        "summary": "Update category information | 更新Category",
+        "operationId": "UpdateCategory",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/CategoryInfo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "BaseMsgResp",
+            "schema": {
+              "$ref": "#/definitions/BaseMsgResp"
+            }
+          }
+        }
+      }
+    },
     "/init/database": {
       "get": {
         "description": "Initialize database | 初始化数据库",
@@ -436,6 +576,145 @@
           "type": "integer",
           "format": "int64",
           "x-go-name": "UpdatedAt"
+        }
+      },
+      "x-go-package": "blog/internal/types"
+    },
+    "CategoryInfo": {
+      "description": "The response data of category information | Category信息",
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "description": "Create date | 创建日期",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CreatedAt"
+        },
+        "id": {
+          "description": "ID",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Id"
+        },
+        "remark": {
+          "description": "备注",
+          "type": "string",
+          "x-go-name": "Remark"
+        },
+        "title": {
+          "description": "栏目标题",
+          "type": "string",
+          "x-go-name": "Title"
+        },
+        "updatedAt": {
+          "description": "Update date | 更新日期",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "UpdatedAt"
+        }
+      },
+      "x-go-package": "blog/internal/types"
+    },
+    "CategoryInfoResp": {
+      "description": "Category information response | Category信息返回体",
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "Error code | 错误代码",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "Data | 数据",
+          "type": "string",
+          "x-go-name": "Data",
+          "$ref": "#/definitions/CategoryInfo"
+        },
+        "msg": {
+          "description": "Message | 提示信息",
+          "type": "string",
+          "x-go-name": "Msg"
+        }
+      },
+      "x-go-package": "blog/internal/types"
+    },
+    "CategoryListInfo": {
+      "description": "Category list data | Category列表数据",
+      "type": "object",
+      "properties": {
+        "data": {
+          "description": "The API list data | Category列表数据",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CategoryInfo"
+          },
+          "x-go-name": "Data"
+        },
+        "total": {
+          "description": "The total number of data | 数据总数",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Total"
+        }
+      },
+      "x-go-package": "blog/internal/types"
+    },
+    "CategoryListReq": {
+      "description": "Get category list request params | Category列表请求参数",
+      "type": "object",
+      "required": [
+        "page",
+        "pageSize"
+      ],
+      "properties": {
+        "page": {
+          "description": "Page number | 第几页",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0,
+          "x-go-name": "Page"
+        },
+        "pageSize": {
+          "description": "Page size | 单页数据行数",
+          "type": "integer",
+          "format": "uint64",
+          "maximum": 100000,
+          "x-go-name": "PageSize"
+        },
+        "remark": {
+          "description": "备注",
+          "type": "string",
+          "x-go-name": "Remark"
+        },
+        "title": {
+          "description": "栏目标题",
+          "type": "string",
+          "x-go-name": "Title"
+        }
+      },
+      "x-go-package": "blog/internal/types"
+    },
+    "CategoryListResp": {
+      "description": "The response data of category list | Category列表数据",
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "Error code | 错误代码",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Code"
+        },
+        "data": {
+          "description": "Data | 数据",
+          "type": "string",
+          "x-go-name": "Data",
+          "$ref": "#/definitions/CategoryListInfo"
+        },
+        "msg": {
+          "description": "Message | 提示信息",
+          "type": "string",
+          "x-go-name": "Msg"
         }
       },
       "x-go-package": "blog/internal/types"

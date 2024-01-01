@@ -6,6 +6,7 @@ import (
 
 	article "blog/internal/handler/article"
 	base "blog/internal/handler/base"
+	category "blog/internal/handler/category"
 	"blog/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -50,6 +51,40 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodPost,
 					Path:    "/article",
 					Handler: article.GetArticleByIdHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.Authority},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/category/create",
+					Handler: category.CreateCategoryHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/category/update",
+					Handler: category.UpdateCategoryHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/category/delete",
+					Handler: category.DeleteCategoryHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/category/list",
+					Handler: category.GetCategoryListHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/category",
+					Handler: category.GetCategoryByIdHandler(serverCtx),
 				},
 			}...,
 		),

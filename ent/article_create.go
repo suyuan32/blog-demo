@@ -4,6 +4,7 @@ package ent
 
 import (
 	"blog/ent/article"
+	"blog/ent/category"
 	"context"
 	"errors"
 	"fmt"
@@ -101,6 +102,25 @@ func (ac *ArticleCreate) SetNillableID(u *uuid.UUID) *ArticleCreate {
 		ac.SetID(*u)
 	}
 	return ac
+}
+
+// SetCategoryID sets the "category" edge to the Category entity by ID.
+func (ac *ArticleCreate) SetCategoryID(id uint64) *ArticleCreate {
+	ac.mutation.SetCategoryID(id)
+	return ac
+}
+
+// SetNillableCategoryID sets the "category" edge to the Category entity by ID if the given value is not nil.
+func (ac *ArticleCreate) SetNillableCategoryID(id *uint64) *ArticleCreate {
+	if id != nil {
+		ac = ac.SetCategoryID(*id)
+	}
+	return ac
+}
+
+// SetCategory sets the "category" edge to the Category entity.
+func (ac *ArticleCreate) SetCategory(c *Category) *ArticleCreate {
+	return ac.SetCategoryID(c.ID)
 }
 
 // Mutation returns the ArticleMutation object of the builder.
@@ -231,6 +251,23 @@ func (ac *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 	if value, ok := ac.mutation.Visit(); ok {
 		_spec.SetField(article.FieldVisit, field.TypeInt, value)
 		_node.Visit = value
+	}
+	if nodes := ac.mutation.CategoryIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
+			Table:   article.CategoryTable,
+			Columns: []string{article.CategoryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(category.FieldID, field.TypeUint64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.article_category = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
