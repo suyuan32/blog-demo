@@ -4,6 +4,7 @@ package handler
 import (
 	"net/http"
 
+	article "blog/internal/handler/article"
 	base "blog/internal/handler/base"
 	"blog/internal/svc"
 
@@ -19,5 +20,39 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: base.InitDatabaseHandler(serverCtx),
 			},
 		},
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.Authority},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/article/create",
+					Handler: article.CreateArticleHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/article/update",
+					Handler: article.UpdateArticleHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/article/delete",
+					Handler: article.DeleteArticleHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/article/list",
+					Handler: article.GetArticleListHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/article",
+					Handler: article.GetArticleByIdHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 	)
 }

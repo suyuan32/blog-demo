@@ -11,11 +11,14 @@ import (
 
 	"blog/ent/migrate"
 
-	"blog/ent/blog"
+	"blog/ent/article"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	uuid "github.com/gofrs/uuid/v5"
+
+	stdsql "database/sql"
 )
 
 // Client is the client that holds all ent builders.
@@ -23,8 +26,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// Blog is the client for interacting with the Blog builders.
-	Blog *BlogClient
+	// Article is the client for interacting with the Article builders.
+	Article *ArticleClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -36,7 +39,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.Blog = NewBlogClient(c.config)
+	c.Article = NewArticleClient(c.config)
 }
 
 type (
@@ -127,9 +130,9 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		Blog:   NewBlogClient(cfg),
+		ctx:     ctx,
+		config:  cfg,
+		Article: NewArticleClient(cfg),
 	}, nil
 }
 
@@ -147,16 +150,16 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		Blog:   NewBlogClient(cfg),
+		ctx:     ctx,
+		config:  cfg,
+		Article: NewArticleClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Blog.
+//		Article.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -178,126 +181,126 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Blog.Use(hooks...)
+	c.Article.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	c.Blog.Intercept(interceptors...)
+	c.Article.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
-	case *BlogMutation:
-		return c.Blog.mutate(ctx, m)
+	case *ArticleMutation:
+		return c.Article.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
 }
 
-// BlogClient is a client for the Blog schema.
-type BlogClient struct {
+// ArticleClient is a client for the Article schema.
+type ArticleClient struct {
 	config
 }
 
-// NewBlogClient returns a client for the Blog from the given config.
-func NewBlogClient(c config) *BlogClient {
-	return &BlogClient{config: c}
+// NewArticleClient returns a client for the Article from the given config.
+func NewArticleClient(c config) *ArticleClient {
+	return &ArticleClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `blog.Hooks(f(g(h())))`.
-func (c *BlogClient) Use(hooks ...Hook) {
-	c.hooks.Blog = append(c.hooks.Blog, hooks...)
+// A call to `Use(f, g, h)` equals to `article.Hooks(f(g(h())))`.
+func (c *ArticleClient) Use(hooks ...Hook) {
+	c.hooks.Article = append(c.hooks.Article, hooks...)
 }
 
 // Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `blog.Intercept(f(g(h())))`.
-func (c *BlogClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Blog = append(c.inters.Blog, interceptors...)
+// A call to `Intercept(f, g, h)` equals to `article.Intercept(f(g(h())))`.
+func (c *ArticleClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Article = append(c.inters.Article, interceptors...)
 }
 
-// Create returns a builder for creating a Blog entity.
-func (c *BlogClient) Create() *BlogCreate {
-	mutation := newBlogMutation(c.config, OpCreate)
-	return &BlogCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a builder for creating a Article entity.
+func (c *ArticleClient) Create() *ArticleCreate {
+	mutation := newArticleMutation(c.config, OpCreate)
+	return &ArticleCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of Blog entities.
-func (c *BlogClient) CreateBulk(builders ...*BlogCreate) *BlogCreateBulk {
-	return &BlogCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of Article entities.
+func (c *ArticleClient) CreateBulk(builders ...*ArticleCreate) *ArticleCreateBulk {
+	return &ArticleCreateBulk{config: c.config, builders: builders}
 }
 
 // MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
 // a builder and applies setFunc on it.
-func (c *BlogClient) MapCreateBulk(slice any, setFunc func(*BlogCreate, int)) *BlogCreateBulk {
+func (c *ArticleClient) MapCreateBulk(slice any, setFunc func(*ArticleCreate, int)) *ArticleCreateBulk {
 	rv := reflect.ValueOf(slice)
 	if rv.Kind() != reflect.Slice {
-		return &BlogCreateBulk{err: fmt.Errorf("calling to BlogClient.MapCreateBulk with wrong type %T, need slice", slice)}
+		return &ArticleCreateBulk{err: fmt.Errorf("calling to ArticleClient.MapCreateBulk with wrong type %T, need slice", slice)}
 	}
-	builders := make([]*BlogCreate, rv.Len())
+	builders := make([]*ArticleCreate, rv.Len())
 	for i := 0; i < rv.Len(); i++ {
 		builders[i] = c.Create()
 		setFunc(builders[i], i)
 	}
-	return &BlogCreateBulk{config: c.config, builders: builders}
+	return &ArticleCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for Blog.
-func (c *BlogClient) Update() *BlogUpdate {
-	mutation := newBlogMutation(c.config, OpUpdate)
-	return &BlogUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for Article.
+func (c *ArticleClient) Update() *ArticleUpdate {
+	mutation := newArticleMutation(c.config, OpUpdate)
+	return &ArticleUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *BlogClient) UpdateOne(b *Blog) *BlogUpdateOne {
-	mutation := newBlogMutation(c.config, OpUpdateOne, withBlog(b))
-	return &BlogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *ArticleClient) UpdateOne(a *Article) *ArticleUpdateOne {
+	mutation := newArticleMutation(c.config, OpUpdateOne, withArticle(a))
+	return &ArticleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *BlogClient) UpdateOneID(id int) *BlogUpdateOne {
-	mutation := newBlogMutation(c.config, OpUpdateOne, withBlogID(id))
-	return &BlogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *ArticleClient) UpdateOneID(id uuid.UUID) *ArticleUpdateOne {
+	mutation := newArticleMutation(c.config, OpUpdateOne, withArticleID(id))
+	return &ArticleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for Blog.
-func (c *BlogClient) Delete() *BlogDelete {
-	mutation := newBlogMutation(c.config, OpDelete)
-	return &BlogDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for Article.
+func (c *ArticleClient) Delete() *ArticleDelete {
+	mutation := newArticleMutation(c.config, OpDelete)
+	return &ArticleDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *BlogClient) DeleteOne(b *Blog) *BlogDeleteOne {
-	return c.DeleteOneID(b.ID)
+func (c *ArticleClient) DeleteOne(a *Article) *ArticleDeleteOne {
+	return c.DeleteOneID(a.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *BlogClient) DeleteOneID(id int) *BlogDeleteOne {
-	builder := c.Delete().Where(blog.ID(id))
+func (c *ArticleClient) DeleteOneID(id uuid.UUID) *ArticleDeleteOne {
+	builder := c.Delete().Where(article.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &BlogDeleteOne{builder}
+	return &ArticleDeleteOne{builder}
 }
 
-// Query returns a query builder for Blog.
-func (c *BlogClient) Query() *BlogQuery {
-	return &BlogQuery{
+// Query returns a query builder for Article.
+func (c *ArticleClient) Query() *ArticleQuery {
+	return &ArticleQuery{
 		config: c.config,
-		ctx:    &QueryContext{Type: TypeBlog},
+		ctx:    &QueryContext{Type: TypeArticle},
 		inters: c.Interceptors(),
 	}
 }
 
-// Get returns a Blog entity by its id.
-func (c *BlogClient) Get(ctx context.Context, id int) (*Blog, error) {
-	return c.Query().Where(blog.ID(id)).Only(ctx)
+// Get returns a Article entity by its id.
+func (c *ArticleClient) Get(ctx context.Context, id uuid.UUID) (*Article, error) {
+	return c.Query().Where(article.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *BlogClient) GetX(ctx context.Context, id int) *Blog {
+func (c *ArticleClient) GetX(ctx context.Context, id uuid.UUID) *Article {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -306,36 +309,60 @@ func (c *BlogClient) GetX(ctx context.Context, id int) *Blog {
 }
 
 // Hooks returns the client hooks.
-func (c *BlogClient) Hooks() []Hook {
-	return c.hooks.Blog
+func (c *ArticleClient) Hooks() []Hook {
+	return c.hooks.Article
 }
 
 // Interceptors returns the client interceptors.
-func (c *BlogClient) Interceptors() []Interceptor {
-	return c.inters.Blog
+func (c *ArticleClient) Interceptors() []Interceptor {
+	return c.inters.Article
 }
 
-func (c *BlogClient) mutate(ctx context.Context, m *BlogMutation) (Value, error) {
+func (c *ArticleClient) mutate(ctx context.Context, m *ArticleMutation) (Value, error) {
 	switch m.Op() {
 	case OpCreate:
-		return (&BlogCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&ArticleCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdate:
-		return (&BlogUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&ArticleUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdateOne:
-		return (&BlogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&ArticleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpDelete, OpDeleteOne:
-		return (&BlogDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+		return (&ArticleDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
-		return nil, fmt.Errorf("ent: unknown Blog mutation op: %q", m.Op())
+		return nil, fmt.Errorf("ent: unknown Article mutation op: %q", m.Op())
 	}
 }
 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Blog []ent.Hook
+		Article []ent.Hook
 	}
 	inters struct {
-		Blog []ent.Interceptor
+		Article []ent.Interceptor
 	}
 )
+
+// ExecContext allows calling the underlying ExecContext method of the driver if it is supported by it.
+// See, database/sql#DB.ExecContext for more information.
+func (c *config) ExecContext(ctx context.Context, query string, args ...any) (stdsql.Result, error) {
+	ex, ok := c.driver.(interface {
+		ExecContext(context.Context, string, ...any) (stdsql.Result, error)
+	})
+	if !ok {
+		return nil, fmt.Errorf("Driver.ExecContext is not supported")
+	}
+	return ex.ExecContext(ctx, query, args...)
+}
+
+// QueryContext allows calling the underlying QueryContext method of the driver if it is supported by it.
+// See, database/sql#DB.QueryContext for more information.
+func (c *config) QueryContext(ctx context.Context, query string, args ...any) (*stdsql.Rows, error) {
+	q, ok := c.driver.(interface {
+		QueryContext(context.Context, string, ...any) (*stdsql.Rows, error)
+	})
+	if !ok {
+		return nil, fmt.Errorf("Driver.QueryContext is not supported")
+	}
+	return q.QueryContext(ctx, query, args...)
+}

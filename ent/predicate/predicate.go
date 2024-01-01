@@ -6,5 +6,5 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// Blog is the predicate function for blog builders.
-type Blog func(*sql.Selector)
+// Article is the predicate function for article builders.
+type Article func(*sql.Selector)

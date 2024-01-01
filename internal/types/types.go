@@ -114,3 +114,53 @@ type BaseUUIDInfo struct {
 	// Update date | 更新日期
 	UpdatedAt *int64 `json:"updatedAt,optional"`
 }
+
+// The response data of article information | Article信息
+// swagger:model ArticleInfo
+type ArticleInfo struct {
+	BaseUUIDInfo
+	// 文章标题
+	Title *string `json:"title,optional"`
+	// 文章内容
+	Content *string `json:"content,optional"`
+	// 关键字
+	Keyword *string `json:"keyword,optional"`
+	// 浏览量
+	Visit *int `json:"visit,optional"`
+}
+
+// The response data of article list | Article列表数据
+// swagger:model ArticleListResp
+type ArticleListResp struct {
+	BaseDataInfo
+	// Article list data | Article列表数据
+	Data ArticleListInfo `json:"data"`
+}
+
+// Article list data | Article列表数据
+// swagger:model ArticleListInfo
+type ArticleListInfo struct {
+	BaseListInfo
+	// The API list data | Article列表数据
+	Data []ArticleInfo `json:"data"`
+}
+
+// Get article list request params | Article列表请求参数
+// swagger:model ArticleListReq
+type ArticleListReq struct {
+	PageInfo
+	// 文章标题
+	Title *string `json:"title,optional"`
+	// 文章内容
+	Content *string `json:"content,optional"`
+	// 关键字
+	Keyword *string `json:"keyword,optional"`
+}
+
+// Article information response | Article信息返回体
+// swagger:model ArticleInfoResp
+type ArticleInfoResp struct {
+	BaseDataInfo
+	// Article information | Article数据
+	Data ArticleInfo `json:"data"`
+}

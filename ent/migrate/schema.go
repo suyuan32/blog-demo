@@ -3,26 +3,36 @@
 package migrate
 
 import (
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/dialect/sql/schema"
 	"entgo.io/ent/schema/field"
 )
 
 var (
-	// BlogsColumns holds the columns for the "blogs" table.
-	BlogsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+	// BlogArticleColumns holds the columns for the "blog_article" table.
+	BlogArticleColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime, Comment: "Create Time | 创建日期"},
+		{Name: "updated_at", Type: field.TypeTime, Comment: "Update Time | 修改日期"},
+		{Name: "title", Type: field.TypeString, Comment: "文章标题"},
+		{Name: "content", Type: field.TypeString, Comment: "文章内容"},
+		{Name: "keyword", Type: field.TypeString, Nullable: true, Comment: "关键字"},
+		{Name: "visit", Type: field.TypeInt, Comment: "浏览量", Default: 0},
 	}
-	// BlogsTable holds the schema information for the "blogs" table.
-	BlogsTable = &schema.Table{
-		Name:       "blogs",
-		Columns:    BlogsColumns,
-		PrimaryKey: []*schema.Column{BlogsColumns[0]},
+	// BlogArticleTable holds the schema information for the "blog_article" table.
+	BlogArticleTable = &schema.Table{
+		Name:       "blog_article",
+		Columns:    BlogArticleColumns,
+		PrimaryKey: []*schema.Column{BlogArticleColumns[0]},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		BlogsTable,
+		BlogArticleTable,
 	}
 )
 
 func init() {
+	BlogArticleTable.Annotation = &entsql.Annotation{
+		Table: "blog_article",
+	}
 }

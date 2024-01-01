@@ -1,1 +1,2 @@
 import "base.api"
+import "./blog/article.api"

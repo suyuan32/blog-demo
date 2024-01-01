@@ -1,0 +1,86 @@
+import "../base.api"
+
+type (
+    // The response data of article information | Article信息
+    ArticleInfo {
+        BaseUUIDInfo
+
+        // 文章标题 
+        Title  *string `json:"title,optional"`
+
+        // 文章内容 
+        Content  *string `json:"content,optional"`
+
+        // 关键字 
+        Keyword  *string `json:"keyword,optional"`
+
+        // 浏览量 
+        Visit  *int `json:"visit,optional"`
+    }
+
+    // The response data of article list | Article列表数据
+    ArticleListResp {
+        BaseDataInfo
+
+        // Article list data | Article列表数据
+        Data ArticleListInfo `json:"data"`
+    }
+
+    // Article list data | Article列表数据
+    ArticleListInfo {
+        BaseListInfo
+
+        // The API list data | Article列表数据
+        Data  []ArticleInfo  `json:"data"`
+    }
+
+    // Get article list request params | Article列表请求参数
+    ArticleListReq {
+        PageInfo
+
+        // 文章标题 
+        Title  *string `json:"title,optional"`
+
+        // 文章内容 
+        Content  *string `json:"content,optional"`
+
+        // 关键字 
+        Keyword  *string `json:"keyword,optional"`
+    }
+
+    // Article information response | Article信息返回体
+    ArticleInfoResp {
+        BaseDataInfo
+
+        // Article information | Article数据
+        Data ArticleInfo `json:"data"`
+    }
+)
+
+@server(
+    jwt: Auth
+    group: article
+    middleware: Authority
+)
+
+service Blog {
+    // Create article information | 创建Article
+    @handler createArticle
+    post /article/create (ArticleInfo) returns (BaseMsgResp)
+
+    // Update article information | 更新Article
+    @handler updateArticle
+    post /article/update (ArticleInfo) returns (BaseMsgResp)
+
+    // Delete article information | 删除Article信息
+    @handler deleteArticle
+    post /article/delete (UUIDsReq) returns (BaseMsgResp)
+
+    // Get article list | 获取Article列表
+    @handler getArticleList
+    post /article/list (ArticleListReq) returns (ArticleListResp)
+
+    // Get article by ID | 通过ID获取Article
+    @handler getArticleById
+    post /article (UUIDReq) returns (ArticleInfoResp)
+}

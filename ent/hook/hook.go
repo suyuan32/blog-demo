@@ -8,16 +8,16 @@ import (
 	"fmt"
 )
 
-// The BlogFunc type is an adapter to allow the use of ordinary
-// function as Blog mutator.
-type BlogFunc func(context.Context, *ent.BlogMutation) (ent.Value, error)
+// The ArticleFunc type is an adapter to allow the use of ordinary
+// function as Article mutator.
+type ArticleFunc func(context.Context, *ent.ArticleMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f BlogFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.BlogMutation); ok {
+func (f ArticleFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ArticleMutation); ok {
 		return f(ctx, mv)
 	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BlogMutation", m)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ArticleMutation", m)
 }
 
 // Condition is a hook condition function.
