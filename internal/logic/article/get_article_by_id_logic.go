@@ -1,6 +1,7 @@
 package article
 
 import (
+	"blog/ent/article"
 	"context"
 
 	"blog/internal/svc"
@@ -29,7 +30,7 @@ func NewGetArticleByIdLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ge
 }
 
 func (l *GetArticleByIdLogic) GetArticleById(req *types.UUIDReq) (*types.ArticleInfoResp, error) {
-	data, err := l.svcCtx.DB.Article.Get(l.ctx, uuidx.ParseUUIDString(req.Id))
+	data, err := l.svcCtx.DB.Article.Query().Where(article.IDEQ(uuidx.ParseUUIDString(req.Id))).WithCategory().Only(l.ctx)
 	if err != nil {
 		return nil, dberrorhandler.DefaultEntError(l.Logger, err, req)
 	}
@@ -45,10 +46,11 @@ func (l *GetArticleByIdLogic) GetArticleById(req *types.UUIDReq) (*types.Article
 				CreatedAt: pointy.GetPointer(data.CreatedAt.UnixMilli()),
 				UpdatedAt: pointy.GetPointer(data.UpdatedAt.UnixMilli()),
 			},
-			Title:   &data.Title,
-			Content: &data.Content,
-			Keyword: &data.Keyword,
-			Visit:   &data.Visit,
+			Title:      &data.Title,
+			Content:    &data.Content,
+			Keyword:    &data.Keyword,
+			Visit:      &data.Visit,
+			CategoryId: &data.Edges.Category.ID,
 		},
 	}, nil
 }

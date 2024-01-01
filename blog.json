@@ -322,6 +322,12 @@
       "description": "The response data of article information | Article信息",
       "type": "object",
       "properties": {
+        "categoryId": {
+          "description": "分类 ID",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "CategoryId"
+        },
         "content": {
           "description": "文章内容",
           "type": "string",

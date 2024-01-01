@@ -27,12 +27,17 @@ func NewUpdateArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Upd
 }
 
 func (l *UpdateArticleLogic) UpdateArticle(req *types.ArticleInfo) (*types.BaseMsgResp, error) {
-	err := l.svcCtx.DB.Article.UpdateOneID(uuidx.ParseUUIDString(*req.Id)).
+	query := l.svcCtx.DB.Article.UpdateOneID(uuidx.ParseUUIDString(*req.Id)).
 		SetNotNilTitle(req.Title).
 		SetNotNilContent(req.Content).
 		SetNotNilKeyword(req.Keyword).
-		SetNotNilVisit(req.Visit).
-		Exec(l.ctx)
+		SetNotNilVisit(req.Visit)
+
+	if req.CategoryId != nil {
+		query.SetCategoryID(*req.CategoryId)
+	}
+
+	err := query.Exec(l.ctx)
 
 	if err != nil {
 		return nil, dberrorhandler.DefaultEntError(l.Logger, err, req)

@@ -27,12 +27,17 @@ func NewCreateArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Cre
 }
 
 func (l *CreateArticleLogic) CreateArticle(req *types.ArticleInfo) (*types.BaseMsgResp, error) {
-	_, err := l.svcCtx.DB.Article.Create().
+	query := l.svcCtx.DB.Article.Create().
 		SetNotNilTitle(req.Title).
 		SetNotNilContent(req.Content).
 		SetNotNilKeyword(req.Keyword).
-		SetNotNilVisit(req.Visit).
-		Save(l.ctx)
+		SetNotNilVisit(req.Visit)
+
+	if req.CategoryId != nil {
+		query.SetCategoryID(*req.CategoryId)
+	}
+
+	err := query.Exec(l.ctx)
 
 	if err != nil {
 		return nil, dberrorhandler.DefaultEntError(l.Logger, err, req)

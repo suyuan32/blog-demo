@@ -40,7 +40,7 @@ func (l *GetArticleListLogic) GetArticleList(req *types.ArticleListReq) (*types.
 	if req.Keyword != nil {
 		predicates = append(predicates, article.KeywordContains(*req.Keyword))
 	}
-	data, err := l.svcCtx.DB.Article.Query().Where(predicates...).Page(l.ctx, req.Page, req.PageSize)
+	data, err := l.svcCtx.DB.Article.Query().Where(predicates...).WithCategory().Page(l.ctx, req.Page, req.PageSize)
 
 	if err != nil {
 		return nil, dberrorhandler.DefaultEntError(l.Logger, err, req)
@@ -58,10 +58,11 @@ func (l *GetArticleListLogic) GetArticleList(req *types.ArticleListReq) (*types.
 					CreatedAt: pointy.GetPointer(v.CreatedAt.UnixMilli()),
 					UpdatedAt: pointy.GetPointer(v.UpdatedAt.UnixMilli()),
 				},
-				Title:   &v.Title,
-				Content: &v.Content,
-				Keyword: &v.Keyword,
-				Visit:   &v.Visit,
+				Title:      &v.Title,
+				Content:    &v.Content,
+				Keyword:    &v.Keyword,
+				Visit:      &v.Visit,
+				CategoryId: &v.Edges.Category.ID,
 			})
 	}
 
