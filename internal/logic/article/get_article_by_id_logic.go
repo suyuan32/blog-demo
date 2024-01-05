@@ -51,6 +51,7 @@ func (l *GetArticleByIdLogic) GetArticleById(req *types.UUIDReq) (*types.Article
 			Keyword:    &data.Keyword,
 			Visit:      &data.Visit,
 			CategoryId: &data.Edges.Category.ID,
+			Status:     &data.Status,
 		},
 	}, nil
 }

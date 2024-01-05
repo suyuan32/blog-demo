@@ -31,7 +31,8 @@ func (l *CreateArticleLogic) CreateArticle(req *types.ArticleInfo) (*types.BaseM
 		SetNotNilTitle(req.Title).
 		SetNotNilContent(req.Content).
 		SetNotNilKeyword(req.Keyword).
-		SetNotNilVisit(req.Visit)
+		SetNotNilVisit(req.Visit).
+		SetNotNilStatus(req.Status)
 
 	if req.CategoryId != nil {
 		query.SetCategoryID(*req.CategoryId)

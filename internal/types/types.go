@@ -129,6 +129,8 @@ type ArticleInfo struct {
 	Visit *int `json:"visit,optional"`
 	// 分类 ID
 	CategoryId *uint64 `json:"categoryId,optional"`
+	// 状态
+	Status *uint8 `json:"status,optional"`
 }
 
 // The response data of article list | Article列表数据

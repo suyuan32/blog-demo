@@ -63,6 +63,7 @@ func (l *GetArticleListLogic) GetArticleList(req *types.ArticleListReq) (*types.
 				Keyword:    &v.Keyword,
 				Visit:      &v.Visit,
 				CategoryId: &v.Edges.Category.ID,
+				Status:     &v.Status,
 			})
 	}
 
