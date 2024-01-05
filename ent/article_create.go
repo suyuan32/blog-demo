@@ -50,6 +50,20 @@ func (ac *ArticleCreate) SetNillableUpdatedAt(t *time.Time) *ArticleCreate {
 	return ac
 }
 
+// SetStatus sets the "status" field.
+func (ac *ArticleCreate) SetStatus(u uint8) *ArticleCreate {
+	ac.mutation.SetStatus(u)
+	return ac
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (ac *ArticleCreate) SetNillableStatus(u *uint8) *ArticleCreate {
+	if u != nil {
+		ac.SetStatus(*u)
+	}
+	return ac
+}
+
 // SetTitle sets the "title" field.
 func (ac *ArticleCreate) SetTitle(s string) *ArticleCreate {
 	ac.mutation.SetTitle(s)
@@ -166,6 +180,10 @@ func (ac *ArticleCreate) defaults() {
 		v := article.DefaultUpdatedAt()
 		ac.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := ac.mutation.Status(); !ok {
+		v := article.DefaultStatus
+		ac.mutation.SetStatus(v)
+	}
 	if _, ok := ac.mutation.Visit(); !ok {
 		v := article.DefaultVisit
 		ac.mutation.SetVisit(v)
@@ -235,6 +253,10 @@ func (ac *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 	if value, ok := ac.mutation.UpdatedAt(); ok {
 		_spec.SetField(article.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := ac.mutation.Status(); ok {
+		_spec.SetField(article.FieldStatus, field.TypeUint8, value)
+		_node.Status = value
 	}
 	if value, ok := ac.mutation.Title(); ok {
 		_spec.SetField(article.FieldTitle, field.TypeString, value)

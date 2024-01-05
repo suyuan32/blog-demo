@@ -35,6 +35,7 @@ func (Article) Edges() []ent.Edge {
 func (Article) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		mixins.UUIDMixin{},
+		mixins.StatusMixin{},
 	}
 }
 

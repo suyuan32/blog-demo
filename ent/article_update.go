@@ -35,6 +35,33 @@ func (au *ArticleUpdate) SetUpdatedAt(t time.Time) *ArticleUpdate {
 	return au
 }
 
+// SetStatus sets the "status" field.
+func (au *ArticleUpdate) SetStatus(u uint8) *ArticleUpdate {
+	au.mutation.ResetStatus()
+	au.mutation.SetStatus(u)
+	return au
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (au *ArticleUpdate) SetNillableStatus(u *uint8) *ArticleUpdate {
+	if u != nil {
+		au.SetStatus(*u)
+	}
+	return au
+}
+
+// AddStatus adds u to the "status" field.
+func (au *ArticleUpdate) AddStatus(u int8) *ArticleUpdate {
+	au.mutation.AddStatus(u)
+	return au
+}
+
+// ClearStatus clears the value of the "status" field.
+func (au *ArticleUpdate) ClearStatus() *ArticleUpdate {
+	au.mutation.ClearStatus()
+	return au
+}
+
 // SetTitle sets the "title" field.
 func (au *ArticleUpdate) SetTitle(s string) *ArticleUpdate {
 	au.mutation.SetTitle(s)
@@ -182,6 +209,15 @@ func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := au.mutation.UpdatedAt(); ok {
 		_spec.SetField(article.FieldUpdatedAt, field.TypeTime, value)
 	}
+	if value, ok := au.mutation.Status(); ok {
+		_spec.SetField(article.FieldStatus, field.TypeUint8, value)
+	}
+	if value, ok := au.mutation.AddedStatus(); ok {
+		_spec.AddField(article.FieldStatus, field.TypeUint8, value)
+	}
+	if au.mutation.StatusCleared() {
+		_spec.ClearField(article.FieldStatus, field.TypeUint8)
+	}
 	if value, ok := au.mutation.Title(); ok {
 		_spec.SetField(article.FieldTitle, field.TypeString, value)
 	}
@@ -252,6 +288,33 @@ type ArticleUpdateOne struct {
 // SetUpdatedAt sets the "updated_at" field.
 func (auo *ArticleUpdateOne) SetUpdatedAt(t time.Time) *ArticleUpdateOne {
 	auo.mutation.SetUpdatedAt(t)
+	return auo
+}
+
+// SetStatus sets the "status" field.
+func (auo *ArticleUpdateOne) SetStatus(u uint8) *ArticleUpdateOne {
+	auo.mutation.ResetStatus()
+	auo.mutation.SetStatus(u)
+	return auo
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (auo *ArticleUpdateOne) SetNillableStatus(u *uint8) *ArticleUpdateOne {
+	if u != nil {
+		auo.SetStatus(*u)
+	}
+	return auo
+}
+
+// AddStatus adds u to the "status" field.
+func (auo *ArticleUpdateOne) AddStatus(u int8) *ArticleUpdateOne {
+	auo.mutation.AddStatus(u)
+	return auo
+}
+
+// ClearStatus clears the value of the "status" field.
+func (auo *ArticleUpdateOne) ClearStatus() *ArticleUpdateOne {
+	auo.mutation.ClearStatus()
 	return auo
 }
 
@@ -431,6 +494,15 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 	}
 	if value, ok := auo.mutation.UpdatedAt(); ok {
 		_spec.SetField(article.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := auo.mutation.Status(); ok {
+		_spec.SetField(article.FieldStatus, field.TypeUint8, value)
+	}
+	if value, ok := auo.mutation.AddedStatus(); ok {
+		_spec.AddField(article.FieldStatus, field.TypeUint8, value)
+	}
+	if auo.mutation.StatusCleared() {
+		_spec.ClearField(article.FieldStatus, field.TypeUint8)
 	}
 	if value, ok := auo.mutation.Title(); ok {
 		_spec.SetField(article.FieldTitle, field.TypeString, value)

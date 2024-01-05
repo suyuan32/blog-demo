@@ -14,6 +14,7 @@ var (
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "created_at", Type: field.TypeTime, Comment: "Create Time | 创建日期"},
 		{Name: "updated_at", Type: field.TypeTime, Comment: "Update Time | 修改日期"},
+		{Name: "status", Type: field.TypeUint8, Nullable: true, Comment: "Status 1: normal 2: ban | 状态 1 正常 2 禁用", Default: 1},
 		{Name: "title", Type: field.TypeString, Comment: "文章标题"},
 		{Name: "content", Type: field.TypeString, Comment: "文章内容"},
 		{Name: "keyword", Type: field.TypeString, Nullable: true, Comment: "关键字"},
@@ -28,7 +29,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "blog_article_blog_category_category",
-				Columns:    []*schema.Column{BlogArticleColumns[7]},
+				Columns:    []*schema.Column{BlogArticleColumns[8]},
 				RefColumns: []*schema.Column{BlogCategoryColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

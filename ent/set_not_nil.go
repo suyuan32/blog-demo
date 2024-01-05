@@ -29,6 +29,30 @@ func (a *ArticleCreate) SetNotNilUpdatedAt(value *time.Time) *ArticleCreate {
 }
 
 // set field if value's pointer is not nil.
+func (a *ArticleUpdate) SetNotNilStatus(value *uint8) *ArticleUpdate {
+	if value != nil {
+		return a.SetStatus(*value)
+	}
+	return a
+}
+
+// set field if value's pointer is not nil.
+func (a *ArticleUpdateOne) SetNotNilStatus(value *uint8) *ArticleUpdateOne {
+	if value != nil {
+		return a.SetStatus(*value)
+	}
+	return a
+}
+
+// set field if value's pointer is not nil.
+func (a *ArticleCreate) SetNotNilStatus(value *uint8) *ArticleCreate {
+	if value != nil {
+		return a.SetStatus(*value)
+	}
+	return a
+}
+
+// set field if value's pointer is not nil.
 func (a *ArticleUpdate) SetNotNilTitle(value *string) *ArticleUpdate {
 	if value != nil {
 		return a.SetTitle(*value)

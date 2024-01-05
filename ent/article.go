@@ -24,6 +24,8 @@ type Article struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// Update Time | 修改日期
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// Status 1: normal 2: ban | 状态 1 正常 2 禁用
+	Status uint8 `json:"status,omitempty"`
 	// 文章标题
 	Title string `json:"title,omitempty"`
 	// 文章内容
@@ -66,7 +68,7 @@ func (*Article) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case article.FieldVisit:
+		case article.FieldStatus, article.FieldVisit:
 			values[i] = new(sql.NullInt64)
 		case article.FieldTitle, article.FieldContent, article.FieldKeyword:
 			values[i] = new(sql.NullString)
@@ -108,6 +110,12 @@ func (a *Article) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				a.UpdatedAt = value.Time
+			}
+		case article.FieldStatus:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
+			} else if value.Valid {
+				a.Status = uint8(value.Int64)
 			}
 		case article.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -186,6 +194,9 @@ func (a *Article) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(a.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("status=")
+	builder.WriteString(fmt.Sprintf("%v", a.Status))
 	builder.WriteString(", ")
 	builder.WriteString("title=")
 	builder.WriteString(a.Title)

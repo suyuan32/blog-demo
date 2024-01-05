@@ -18,6 +18,8 @@ func init() {
 	articleMixin := schema.Article{}.Mixin()
 	articleMixinFields0 := articleMixin[0].Fields()
 	_ = articleMixinFields0
+	articleMixinFields1 := articleMixin[1].Fields()
+	_ = articleMixinFields1
 	articleFields := schema.Article{}.Fields()
 	_ = articleFields
 	// articleDescCreatedAt is the schema descriptor for created_at field.
@@ -30,6 +32,10 @@ func init() {
 	article.DefaultUpdatedAt = articleDescUpdatedAt.Default.(func() time.Time)
 	// article.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	article.UpdateDefaultUpdatedAt = articleDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// articleDescStatus is the schema descriptor for status field.
+	articleDescStatus := articleMixinFields1[0].Descriptor()
+	// article.DefaultStatus holds the default value on creation for the status field.
+	article.DefaultStatus = articleDescStatus.Default.(uint8)
 	// articleDescVisit is the schema descriptor for visit field.
 	articleDescVisit := articleFields[3].Descriptor()
 	// article.DefaultVisit holds the default value on creation for the visit field.

@@ -38,6 +38,8 @@ type ArticleMutation struct {
 	id              *uuid.UUID
 	created_at      *time.Time
 	updated_at      *time.Time
+	status          *uint8
+	addstatus       *int8
 	title           *string
 	content         *string
 	keyword         *string
@@ -225,6 +227,76 @@ func (m *ArticleMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err er
 // ResetUpdatedAt resets all changes to the "updated_at" field.
 func (m *ArticleMutation) ResetUpdatedAt() {
 	m.updated_at = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *ArticleMutation) SetStatus(u uint8) {
+	m.status = &u
+	m.addstatus = nil
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *ArticleMutation) Status() (r uint8, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the Article entity.
+// If the Article object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ArticleMutation) OldStatus(ctx context.Context) (v uint8, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// AddStatus adds u to the "status" field.
+func (m *ArticleMutation) AddStatus(u int8) {
+	if m.addstatus != nil {
+		*m.addstatus += u
+	} else {
+		m.addstatus = &u
+	}
+}
+
+// AddedStatus returns the value that was added to the "status" field in this mutation.
+func (m *ArticleMutation) AddedStatus() (r int8, exists bool) {
+	v := m.addstatus
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearStatus clears the value of the "status" field.
+func (m *ArticleMutation) ClearStatus() {
+	m.status = nil
+	m.addstatus = nil
+	m.clearedFields[article.FieldStatus] = struct{}{}
+}
+
+// StatusCleared returns if the "status" field was cleared in this mutation.
+func (m *ArticleMutation) StatusCleared() bool {
+	_, ok := m.clearedFields[article.FieldStatus]
+	return ok
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *ArticleMutation) ResetStatus() {
+	m.status = nil
+	m.addstatus = nil
+	delete(m.clearedFields, article.FieldStatus)
 }
 
 // SetTitle sets the "title" field.
@@ -477,12 +549,15 @@ func (m *ArticleMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ArticleMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, article.FieldCreatedAt)
 	}
 	if m.updated_at != nil {
 		fields = append(fields, article.FieldUpdatedAt)
+	}
+	if m.status != nil {
+		fields = append(fields, article.FieldStatus)
 	}
 	if m.title != nil {
 		fields = append(fields, article.FieldTitle)
@@ -508,6 +583,8 @@ func (m *ArticleMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case article.FieldUpdatedAt:
 		return m.UpdatedAt()
+	case article.FieldStatus:
+		return m.Status()
 	case article.FieldTitle:
 		return m.Title()
 	case article.FieldContent:
@@ -529,6 +606,8 @@ func (m *ArticleMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldCreatedAt(ctx)
 	case article.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
+	case article.FieldStatus:
+		return m.OldStatus(ctx)
 	case article.FieldTitle:
 		return m.OldTitle(ctx)
 	case article.FieldContent:
@@ -559,6 +638,13 @@ func (m *ArticleMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUpdatedAt(v)
+		return nil
+	case article.FieldStatus:
+		v, ok := value.(uint8)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
 		return nil
 	case article.FieldTitle:
 		v, ok := value.(string)
@@ -596,6 +682,9 @@ func (m *ArticleMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *ArticleMutation) AddedFields() []string {
 	var fields []string
+	if m.addstatus != nil {
+		fields = append(fields, article.FieldStatus)
+	}
 	if m.addvisit != nil {
 		fields = append(fields, article.FieldVisit)
 	}
@@ -607,6 +696,8 @@ func (m *ArticleMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *ArticleMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
+	case article.FieldStatus:
+		return m.AddedStatus()
 	case article.FieldVisit:
 		return m.AddedVisit()
 	}
@@ -618,6 +709,13 @@ func (m *ArticleMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *ArticleMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case article.FieldStatus:
+		v, ok := value.(int8)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddStatus(v)
+		return nil
 	case article.FieldVisit:
 		v, ok := value.(int)
 		if !ok {
@@ -633,6 +731,9 @@ func (m *ArticleMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *ArticleMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(article.FieldStatus) {
+		fields = append(fields, article.FieldStatus)
+	}
 	if m.FieldCleared(article.FieldKeyword) {
 		fields = append(fields, article.FieldKeyword)
 	}
@@ -650,6 +751,9 @@ func (m *ArticleMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *ArticleMutation) ClearField(name string) error {
 	switch name {
+	case article.FieldStatus:
+		m.ClearStatus()
+		return nil
 	case article.FieldKeyword:
 		m.ClearKeyword()
 		return nil
@@ -666,6 +770,9 @@ func (m *ArticleMutation) ResetField(name string) error {
 		return nil
 	case article.FieldUpdatedAt:
 		m.ResetUpdatedAt()
+		return nil
+	case article.FieldStatus:
+		m.ResetStatus()
 		return nil
 	case article.FieldTitle:
 		m.ResetTitle()
