@@ -7,6 +7,7 @@ import (
 	article "blog/internal/handler/article"
 	base "blog/internal/handler/base"
 	category "blog/internal/handler/category"
+	publicapi "blog/internal/handler/publicapi"
 	"blog/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -55,6 +56,21 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			}...,
 		),
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodGet,
+				Path:    "/public/article/list",
+				Handler: publicapi.GetPublicArticleListHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/public/article/:id",
+				Handler: publicapi.GetPublicArticleByIdHandler(serverCtx),
+			},
+		},
 	)
 
 	server.AddRoutes(

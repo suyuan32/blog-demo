@@ -68,11 +68,12 @@ type IDPathReq struct {
 }
 
 // Basic UUID request in path | 基础UUID地址参数请求
-// swagger:model UUIDPathReq
+// swagger:parameters GetPublicArticleById
 type UUIDPathReq struct {
 	// ID
 	// Required: true
-	Id string `path:"id"`
+	// in: path
+	Id string `json:"id,optional" path:"id"`
 }
 
 // Basic UUID request | 基础UUID参数请求
@@ -159,6 +160,30 @@ type ArticleListReq struct {
 	Content *string `json:"content,optional"`
 	// 关键字
 	Keyword *string `json:"keyword,optional"`
+}
+
+// Get article public list request params | 文章公开列表请求参数
+// swagger:parameters GetPublicArticleList
+type ArticlePublicListReq struct {
+	// Page number | 第几页
+	// in: query
+	// required : true
+	// min : 0
+	Page uint64 `json:"page,optional" form:"page" validate:"required,number,gt=0"`
+	// Page size | 单页数据行数
+	// in: query
+	// required : true
+	// max : 100000
+	PageSize uint64 `json:"pageSize,optional" form:"pageSize" validate:"required,number,lt=100000"`
+	// 文章标题
+	// in: query
+	Title *string `json:"title,optional" form:"title,optional"`
+	// 文章内容
+	// in: query
+	Content *string `json:"content,optional" form:"content,optional"`
+	// 关键字
+	// in: query
+	Keyword *string `json:"keyword,optional" form:"keyword,optional"`
 }
 
 // Article information response | Article信息返回体

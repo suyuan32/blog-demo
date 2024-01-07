@@ -315,6 +315,95 @@
           }
         }
       }
+    },
+    "/public/article/list": {
+      "get": {
+        "description": "Get article public list | 获取Article公开列表",
+        "tags": [
+          "publicapi"
+        ],
+        "summary": "Get article public list | 获取Article公开列表",
+        "operationId": "GetPublicArticleList",
+        "parameters": [
+          {
+            "minimum": 0,
+            "type": "integer",
+            "format": "uint64",
+            "x-go-name": "Page",
+            "description": "Page number | 第几页",
+            "name": "page",
+            "in": "query",
+            "required": true
+          },
+          {
+            "maximum": 100000,
+            "type": "integer",
+            "format": "uint64",
+            "x-go-name": "PageSize",
+            "description": "Page size | 单页数据行数",
+            "name": "pageSize",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-go-name": "Title",
+            "description": "文章标题",
+            "name": "title",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "Content",
+            "description": "文章内容",
+            "name": "content",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "Keyword",
+            "description": "关键字",
+            "name": "keyword",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ArticleListResp",
+            "schema": {
+              "$ref": "#/definitions/ArticleListResp"
+            }
+          }
+        }
+      }
+    },
+    "/public/article/{id}": {
+      "get": {
+        "description": "Get article by ID | 通过ID获取Article",
+        "tags": [
+          "publicapi"
+        ],
+        "summary": "Get article by ID | 通过ID获取Article",
+        "operationId": "GetPublicArticleById",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Id",
+            "description": "ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ArticleInfoResp",
+            "schema": {
+              "$ref": "#/definitions/ArticleInfoResp"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -802,20 +891,6 @@
           "format": "uint64",
           "maximum": 100000,
           "x-go-name": "PageSize"
-        }
-      },
-      "x-go-package": "blog/internal/types"
-    },
-    "UUIDPathReq": {
-      "description": "Basic UUID request in path | 基础UUID地址参数请求",
-      "type": "object",
-      "required": [
-        "Id"
-      ],
-      "properties": {
-        "Id": {
-          "description": "ID",
-          "type": "string"
         }
       },
       "x-go-package": "blog/internal/types"
